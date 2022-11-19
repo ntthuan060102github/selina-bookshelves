@@ -1,7 +1,12 @@
 const response_data = require("../helpers/response")
+const { validationResult } = require('express-validator');
 
 const add_new_product = async (req, res, next) => {
     try {
+        const input_validate = validationResult(req)
+        if (!input_validate.isEmpty()) {
+            return res.json(response_data(input_validate.array(), status_code=4))
+        }
 
     }
     catch (err) {
@@ -12,4 +17,8 @@ const add_new_product = async (req, res, next) => {
             )
         )
     }
+}
+
+module.exports = {
+    add_new_product
 }

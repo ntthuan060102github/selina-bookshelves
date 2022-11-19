@@ -13,6 +13,8 @@ const {
     MONGO_DB_URL
 } = require('./configs/app_configs')
 
+const product_router = require('./routers/product')
+
 const app = express()
 
 dotenv.config()
@@ -41,6 +43,8 @@ app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
   next()
 })
+
+app.use(ROUTES_PREFIX + "", product_router)
 
 app.listen(process.env.PORT || 8800 , () => {
     console.log("Bookshelves service is running...")
