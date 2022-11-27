@@ -1,4 +1,9 @@
 const router = require('express').Router()
+const multer = require('multer')
+
+const upload = multer({
+    storage: multer.memoryStorage()
+})
 
 const {
     add_new_product
@@ -15,6 +20,7 @@ const {
 router.post(
     "/add-new-product", 
     auth_user_middleware, 
+    upload.single('image'),
     add_new_product_validator(), 
     add_new_product
 )

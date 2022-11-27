@@ -8,6 +8,7 @@ const Product = new mongoose.Schema(
         name: { type: String, required: true, max_length: 100 },
         desc: { type: String, max_length: 500 },
         price: { type: Number, required: true },
+        image: { type: String },
         status: { 
             type: String, 
             required: false, 
