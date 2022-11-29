@@ -19,9 +19,11 @@ const add_new_product = async (req, res, next) => {
         if (product_image && !product_image.mimetype.includes("image")) {
             return res.json(response_data("image_invalid", status_code=4, message="Hình ảnh không hợp lệ!"))
         }
-
+        console.log(product_image)
         const upload_image_res = await upload_image(product_image)
+        console.log(upload_image_res)
         const image_url = upload_image_res?.data?.url
+        console.log(image_url)
 
         const new_product_data = {
             seller_id: seller_id,

@@ -6,12 +6,12 @@ const upload_image = async (file) => {
     try {
         return new Promise((resolve, reject) => {
             if(!file) {
-                return response_data(
-                    data = "no_file_founs", 
+                return resolve(response_data(
+                    data = "no_file_found", 
                     status_code = 4,
                     message = "Error: No files found"
-                )
-            } 
+                ))
+            }
         
             const image = firebase.bucket.file(file.originalname)
             const now = Date.now()
@@ -23,7 +23,7 @@ const upload_image = async (file) => {
             })
     
             image_writer.on('error', (err) => {
-                return reject(response_data(
+                return resolve(response_data(
                     data = err, 
                     status_code = 4,
                     message = "Error"
@@ -47,7 +47,8 @@ const upload_image = async (file) => {
         
     }
     catch (err) {
-        return response_data(data={}, status_code=4, message=err.message)
+        console.log(err)
+        return resolve(response_data(data={}, status_code=4, message=err.message))
     }
 }
 
