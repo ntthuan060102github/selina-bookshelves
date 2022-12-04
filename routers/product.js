@@ -6,7 +6,8 @@ const upload = multer({
 })
 
 const {
-    add_new_product
+    add_new_product,
+    get_product_info
 } = require("../controllers/product_handler")
 
 const { 
@@ -23,6 +24,12 @@ router.post(
     upload.single('image'),
     add_new_product_validator(), 
     add_new_product
+)
+
+router.get(
+    "/get-product-info",
+    auth_user_middleware,
+    get_product_info
 )
 
 module.exports = router

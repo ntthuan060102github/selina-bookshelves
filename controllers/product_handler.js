@@ -59,6 +59,56 @@ const add_new_product = async (req, res, next) => {
     }
 }
 
+const get_product_info = async (req, res, next) => {
+    try {
+        data = req.body
+
+        product_id = Number(data.product_id)
+        if (!Number.isInteger(product_id)) {
+            return res.json(response_data(data="data_invalid", status_code=4))
+        }
+
+        query = { "product_id": product_id }
+        if (req.user_session?.user_type === "seller") {
+            query['seller_id'] = req.user_session?.user_id
+        }
+        else if (req.user_sessions?.user_type == "admin") {
+            query['status'] = "pending"
+        }
+
+        product_info = await Product.findOne(query)
+
+        if (Boolean(product_info)) {
+            product_data = product_info?._doc
+            product_data = {
+                "product_id": product_data.product_id,
+                "seller_id": product_data.seller_id,
+                "name": product_data.name,
+                "desc": product_data.desc,
+                "price": product_data.price,
+                "image": product_data.image,
+                "status": product_data.status,
+                "genres": product_data.genres,
+                "quantity": product_data.quantity
+            }
+        }
+        else {
+            product_data = "no_data"
+        }
+
+        return res.json(response_data(product_data))
+    }
+    catch(err) {
+        return res.json(response_data(
+                data=err.message,
+                status_code=4,
+                message="Lỗi hệ thống!"
+            )
+        )
+    }
+}
+
 module.exports = {
-    add_new_product
+    add_new_product,
+    get_product_info
 }

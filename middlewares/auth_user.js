@@ -13,7 +13,7 @@ const auth_user_middleware = async (req, res, next) => {
             )
         }
         const user_session_in_redis = await redis_base.get(`access_token_${access_token.replace("Bearer ", "")}`)
-    
+
         if (!user_session_in_redis) {
             return res.json(response_data(
                     data = "access_token_expired",
@@ -32,6 +32,8 @@ const auth_user_middleware = async (req, res, next) => {
                 )
             )
         }
+
+        req.user_session = user_session
 
         next()
     }
