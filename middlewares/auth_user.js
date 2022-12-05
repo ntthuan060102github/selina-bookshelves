@@ -32,9 +32,6 @@ const auth_user_middleware = async (req, res, next) => {
                 )
             )
         }
-
-        req.user_session = user_session
-
         next()
     }
     catch (err) {
