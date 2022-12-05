@@ -61,18 +61,25 @@ const add_new_product = async (req, res, next) => {
 
 const get_product_info = async (req, res, next) => {
     try {
-        data = req.body
+        const body = req.body
+        const product_id = Number(body.product_id)
 
-        product_id = Number(data.product_id)
         if (!Number.isInteger(product_id)) {
-            return res.json(response_data(data="data_invalid", status_code=4))
+            return res.json(response_data(
+                    data="data_invalid",
+                    status_code=4,
+                    message='Mã sản phẩm không hợp lệ'
+                )
+            )
         }
 
+        const session_data = JSON.parse(await get_session_data(req))
         query = { "product_id": product_id }
-        if (req.user_session?.user_type === "seller") {
-            query['seller_id'] = req.user_session?.user_id
+
+        if (session_data.user_type === "seller") {
+            query['seller_id'] = session_data.user_id
         }
-        else if (req.user_sessions?.user_type == "admin") {
+        else if (session_data.user_type == "admin") {
             query['status'] = "pending"
         }
 
