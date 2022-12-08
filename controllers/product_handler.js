@@ -61,8 +61,7 @@ const add_new_product = async (req, res, next) => {
 
 const get_product_info = async (req, res, next) => {
     try {
-        const body = req.body
-        const product_id = Number(body.product_id)
+        const product_id = Number(req.query.id)
 
         if (!Number.isInteger(product_id)) {
             return res.json(response_data(
@@ -76,11 +75,14 @@ const get_product_info = async (req, res, next) => {
         const session_data = JSON.parse(await get_session_data(req))
         query = { "product_id": product_id }
 
-        if (session_data.user_type === "seller") {
-            query['seller_id'] = session_data.user_id
-        }
-        else if (session_data.user_type == "admin") {
+        if (session_data.user_type === "admin") {
             query['status'] = "pending"
+        }
+        else {
+            query['status'] = "approved"
+            if (session_data.user_type === "seller") {
+                query['seller_id'] = session_data.user_id
+            }
         }
 
         product_info = await Product.findOne(query)
@@ -98,12 +100,14 @@ const get_product_info = async (req, res, next) => {
                 "genres": product_data.genres,
                 "quantity": product_data.quantity
             }
+            message = "Thành công"
         }
         else {
-            product_data = "no_data"
+            product_data = {}
+            message = "Sản phẩm không tồn tại"
         }
 
-        return res.json(response_data(product_data))
+        return res.json(response_data(product_data, status_code=1, message=message))
     }
     catch(err) {
         return res.json(response_data(
