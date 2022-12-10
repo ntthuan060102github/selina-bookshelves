@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const mongoose_paginate = require('mongoose-paginate')
 const AutoIncrement = require('mongoose-sequence')(mongoose)
 
 const Product = new mongoose.Schema(
@@ -23,6 +24,7 @@ const Product = new mongoose.Schema(
     }
 )
 
+Product.plugin(mongoose_paginate)
 Product.plugin(AutoIncrement, { inc_field: "product_id" })
 
 module.exports = mongoose.model("product", Product)
