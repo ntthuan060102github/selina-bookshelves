@@ -37,88 +37,131 @@ const add_new_product = async (req, res, next) => {
         const new_product_validate = new_product.validateSync()
 
         if (!!new_product_validate) {
-            return res.json(response_data("product_info_invalid", status_code=4, message="Thêm sản phẩm thất bại!"))
+            return res.json(response_data(
+                "product_info_invalid",
+                status_code=4,
+                message="Thêm sản phẩm thất bại!",
+                role=req?.role
+            ))
         }
 
         const save_res = Boolean(await new_product.save())
 
         if (!save_res) {
-            return res.json(response_data("add_new_product_fail", status_code=4, message="Thêm sản phẩm thất bại!"))
+            return res.json(response_data(
+                "add_new_product_fail",
+                status_code=4,
+                message="Thêm sản phẩm thất bại!",
+                role=req?.role
+            ))
         }
         
-        return res.json(response_data("success", status_code=1, message="Thành công!"))
+        return res.json(response_data("success", status_code=1, message="Thành công!", role=req?.role))
     }
     catch (err) {
         return res.json(response_data(
-                data=err.message, 
-                status_code=4, 
-                message="Lỗi hệ thống!"
-            )
-        )
+            data=err.message, 
+            status_code=4, 
+            message="Lỗi hệ thống!",
+            role=req?.role
+        ))
     }
 }
 
-const get_product_info = async (req, res, next) => {
+const get_product_info = async (req, res) => {
     try {
-        const product_id = Number(req.query.id)
-
-        if (!Number.isInteger(product_id)) {
-            return res.json(response_data(
-                    data="data_invalid",
-                    status_code=4,
-                    message='Mã sản phẩm không hợp lệ'
-                )
-            )
-        }
-
+        const user_role = req?.user_role
         const session_data = JSON.parse(await get_session_data(req))
-        query = { "product_id": product_id }
+        const seller_id = session_data?.seller_id
+        const product_id = Number(req?.query?.id)
 
-        if (session_data.user_type === "admin") {
-            query['status'] = "pending"
+        database_query = { "product_id": product_id }
+        switch (user_role) {
+            case "admin":
+                database_query.status = "pending"
+                break
+            case "seller":
+                database_query.status = "approved"
+                database_query.seller_id = seller_id
+                break
+            case "normal_user":
+                database_query.status = "approved"
+                break
         }
-        else {
-            query['status'] = "approved"
-            if (session_data.user_type === "seller") {
-                query['seller_id'] = session_data.user_id
-            }
-        }
+        // if (Object.keys(database_query).length == 0) {
+        //     throw Error("invalid role")
+        // }
+        let product_info = await Product.findOne(
+            database_query,
+            'product_id seller_id name desc price image status genres quantity'
+        ) || {}
 
-        product_info = await Product.findOne(query)
-
-        if (Boolean(product_info)) {
-            product_data = product_info?._doc
-            product_data = {
-                "product_id": product_data.product_id,
-                "seller_id": product_data.seller_id,
-                "name": product_data.name,
-                "desc": product_data.desc,
-                "price": product_data.price,
-                "image": product_data.image,
-                "status": product_data.status,
-                "genres": product_data.genres,
-                "quantity": product_data.quantity
-            }
-            message = "Thành công"
-        }
-        else {
-            product_data = {}
-            message = "Sản phẩm không tồn tại"
-        }
-
-        return res.json(response_data(product_data, status_code=1, message=message))
+        return res.json(response_data(
+            product_info,
+            status_code=1,
+            message="Thành công",
+            role=user_role
+        ))
     }
     catch(err) {
         return res.json(response_data(
-                data=err.message,
-                status_code=4,
-                message="Lỗi hệ thống!"
-            )
-        )
+            data=err.message,
+            status_code=4,
+            message="Lỗi hệ thống!",
+            role=req?.user_role
+        ))
+    }
+}
+
+const find_products = async (req, res) => {
+    try {
+        const page = Number(req?.query?.page) || 1
+        const limit = Number(req?.query?.limit) || 20
+        const user_role = req?.user_role // middlewares/get_user_role
+        const session_data = JSON.parse(await get_session_data(req))
+        const seller_id = Number(session_data?.user_id)
+
+        let database_query = req?.temp_database_query || {}
+        switch (user_role) {
+            case "admin":
+                database_query.status = "pending"
+                break
+            case "seller":
+                database_query.status = "approved"
+                database_query.seller_id = seller_id
+                break
+            case "normal_user":
+                database_query.status = "approved"
+                break
+        }
+        // if (Object.keys(database_query).length == 0) {
+        //     throw Error("invalid role")
+        // }
+        const query_options = {
+            select: 'product_id seller_id name desc price image status genres quantity',
+            page: page,
+            limit: limit
+        }
+        let products = await Product.paginate(database_query, query_options)
+        return res.json(response_data(
+            data=products,
+            status_code=1, 
+            message="Thành công",
+            role=user_role
+        ))
+    }
+    catch (err) {
+        return res.json(response_data(
+            data=err.message, 
+            status_code=4, 
+            message="Lỗi hệ thống!",
+            role=req?.user_role
+        ))
     }
 }
 
 module.exports = {
     add_new_product,
-    get_product_info
+    get_product_info,
+    find_products
 }
