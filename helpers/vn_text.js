@@ -13,7 +13,7 @@ const get_accent_insensitive_regex_vn = (string='') => {
         .replace(/i/g, '[i,í,ì,ỉ,ĩ,ị]')
         .replace(/o/g, '[o,ô,ơ,ó,ố,ớ,ò,ồ,ờ,ỏ,ổ,ở,õ,ỗ,ỡ,ọ,ộ,ợ]')
         .replace(/u/g, '[u,ư,ú,ứ,ù,ừ,ủ,ử,ũ,ữ,ụ,ự]')
-        .replace(/y/g, '[y,ý,ỳ,ỷ,ỹ,ỵ')
+        .replace(/y/g, '[y,ý,ỳ,ỷ,ỹ,ỵ]')
         .replace(/d/g, '[d,đ]')
 }
 

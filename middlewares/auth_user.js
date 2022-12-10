@@ -39,8 +39,7 @@ const auth_user_middleware = async (req, res, next) => {
             data=err.message, 
             status_code=4, 
             message="Lỗi hệ thống!"
-            )
-        )
+        ))
     }
 }
 
