@@ -1,23 +1,22 @@
 const response_data = require("../helpers/response")
 const upload_image = require("../helpers/upload_image_to_storage")
 const get_session_data = require("../helpers/get_session_data")
-const { validationResult } = require('express-validator');
 const Product = require('../models/product')
 
 const add_new_product = async (req, res, next) => {
     try {
-        const input_validate = validationResult(req)
-
-        if (!input_validate.isEmpty()) {
-            return res.json(response_data(input_validate.array(), status_code=4))
-        }
         const session_data = JSON.parse(await get_session_data(req))
         const seller_id = session_data.user_id
         const body = req.body
         const product_image = req.file
 
         if (product_image && !product_image.mimetype.includes("image")) {
-            return res.json(response_data("image_invalid", status_code=4, message="Hình ảnh không hợp lệ!"))
+            return res.json(response_data(
+                "image_invalid",
+                status_code=4,
+                message="Hình ảnh không hợp lệ!",
+                role=req?.role
+            ))
         }
         console.log(product_image)
         const upload_image_res = await upload_image(product_image)

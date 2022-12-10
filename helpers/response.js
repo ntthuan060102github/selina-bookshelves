@@ -1,8 +1,9 @@
-const response_data = (data=null, status_code=1, message="") => {
+const response_data = (data=null, status_code=1, message="", role="normal_user") => {
     return {
         data,
         status_code,
-        message
+        message,
+        user_role: role
     }
 }
 // status_codes
