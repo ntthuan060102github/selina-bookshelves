@@ -7,7 +7,8 @@ const Product = new mongoose.Schema(
         product_id: { type: Number },
         seller_id: { type: Number, required: true },
         name: { type: String, required: true, max_length: 100 },
-        desc: { type: String, max_length: 500 },
+        desc: { type: String, max_length: 500, default: "-----" },
+        author: { type: String, max_length: 200, default: "-----" },
         price: { type: Number, required: true },
         image: { type: String },
         status: { 

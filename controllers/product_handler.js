@@ -18,11 +18,8 @@ const add_new_product = async (req, res, next) => {
                 role=req?.role
             ))
         }
-        console.log(product_image)
         const upload_image_res = await upload_image(product_image)
-        console.log(upload_image_res)
         const image_url = upload_image_res?.data?.url
-        console.log(image_url)
 
         const new_product_data = {
             seller_id: seller_id,
@@ -30,6 +27,7 @@ const add_new_product = async (req, res, next) => {
             desc: body?.desc,
             price: body?.price,
             quantity: body?.quantity,
+            author: body?.author,
             image: image_url
         }
 
