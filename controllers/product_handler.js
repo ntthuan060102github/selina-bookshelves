@@ -70,7 +70,7 @@ const get_product_info = async (req, res) => {
     try {
         const user_role = req?.user_role
         const session_data = JSON.parse(await get_session_data(req))
-        const seller_id = session_data?.seller_id
+        const seller_id = session_data?.user_id
         const product_id = Number(req?.query?.id)
 
         database_query = { "product_id": product_id }
