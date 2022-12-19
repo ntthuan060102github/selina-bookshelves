@@ -119,7 +119,98 @@ const add_product_to_cart = async (req, res, next) => {
     }
 }
 
+const get_cart_info = async (req, res, next) => {
+    try {
+        const session_data = JSON.parse(await get_session_data(req))
+        const user_id = session_data.user_id
+        const user_role = session_data.user_type
+
+        if (user_role !== "normal_user") {
+            return res.json(response_data(
+                data="no_permit", 
+                status_code=4, 
+                message="Bạn không có quyền thực hiện chức năng này!",
+                role=req?.user_role
+            ))
+        }
+
+        const book_group = await BookGroup.find({
+            buyer_id: user_id,
+            is_deleted: false
+        })
+
+        const book_group_infos = book_group.map(book_group_info => ({
+            "group_id": book_group_info.group_id,
+            "seller_id": book_group_info.seller_id
+        }))
+        const list_seller_id = book_group_infos.map(b => b.seller_id)
+        const list_book_group_id = book_group_infos.map(b => b.group_id)
+        
+        const seller_infos_res = await axios.post(
+            `${SELINA_API_SERVICE_INFOS.profile[APP_ENV].domain}/get-list-user-info-by-id`,
+            {
+                list_user_id: list_seller_id
+            }
+        ).then(function (response) {
+            return response.data
+        })
+        const seller_infos = seller_infos_res.data
+        let res_data = []
+
+        const list_book_in_cart = await BookInCart.find({
+            book_group_id: {
+                $in: list_book_group_id
+            },
+            is_deleted: false
+        })
+
+        for (const seller_info of seller_infos) {
+            for (const book_group_info of book_group_infos) {
+                if (Number(seller_info.user_id) === Number(book_group_info.seller_id)) {
+                    res_data.push({
+                        ...book_group_info,
+                        seller_name: seller_info.full_name,
+                        seller_avt: seller_info.avatar_url || "",
+                        books: []
+                    })
+                }
+            }
+        }
+
+        for (const res of res_data) {
+            for(const book_in_cart of list_book_in_cart) {
+                if (Number(res.group_id) === Number(book_in_cart.book_group_id)) {
+                    res.books.push({
+                        book_id: book_in_cart.book_id,
+                        image: book_in_cart.image,
+                        name: book_in_cart.name,
+                        desc: book_in_cart.desc,
+                        quantity: book_in_cart.quantity,
+                        price: book_in_cart.price,
+                        total_price: book_in_cart.quantity*book_in_cart.price
+                    })
+                    let total_price = 0
+                    for (const book of res.books) {
+                        total_price += book.total_price
+                    }
+                    res.total_price = total_price
+                }
+            }
+        }
+
+        return res.json(response_data(res_data))
+    }
+    catch (err) {
+        return res.json(response_data(
+            data=err.message, 
+            status_code=4, 
+            message="Lỗi hệ thống!",
+            role=req?.user_role
+        ))
+    }
+}
 
 module.exports = {
     add_product_to_cart,
+    get_cart_info
 }
