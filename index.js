@@ -14,6 +14,7 @@ const {
 } = require('./configs/app_configs')
 
 const product_router = require('./routers/product')
+const cart_router = require('./routers/cart')
 
 const app = express()
 
@@ -45,6 +46,7 @@ app.use(function(req, res, next) {
 })
 
 app.use(ROUTES_PREFIX + "", product_router)
+app.use(ROUTES_PREFIX + "", cart_router)
 
 app.listen(process.env.PORT || 8802 , () => {
     console.log("Bookshelves service is running...")
