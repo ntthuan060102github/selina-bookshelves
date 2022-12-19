@@ -11,7 +11,7 @@ const add_product_to_cart = async (req, res, next) => {
     try {
         const body = req.body
         const book_id = body?.book_id
-        const quantity = body?.quantity
+        const quantity = Number(body?.quantity)
         const session_data = JSON.parse(await get_session_data(req))
 
         if (req?.user_role !== "normal_user") {
@@ -27,7 +27,7 @@ const add_product_to_cart = async (req, res, next) => {
             product_id: book_id,
             status: "approved"
         })
-
+        
         if(!product_info) {
             return res.json(response_data(
                 data="product_invalid", 
@@ -71,6 +71,16 @@ const add_product_to_cart = async (req, res, next) => {
                 ))
             }
             book_group = new_book_group.group_id
+        }
+
+        const check_book_in_cart = await BookInCart.findOne({
+            book_group_id: book_group,
+            book_id: product_info.product_id
+        })
+        if (check_book_in_cart) {
+            check_book_in_cart.quantity += quantity
+            check_book_in_cart.save()
+            return res.json(response_data())
         }
 
         const new_book_in_cart = new BookInCart({

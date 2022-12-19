@@ -4,6 +4,7 @@ const { validationResult } = require('express-validator')
 const validate_request_middleware = async (req, res, next) => {
     try {
         const input_validate = validationResult(req)
+        
         if (!input_validate.isEmpty()) {
             return res.json(response_data(
                 data=input_validate.array(),
