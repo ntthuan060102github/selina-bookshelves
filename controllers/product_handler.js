@@ -229,9 +229,50 @@ const modify_product_info = async (req, res, next) => {
     }
 }
 
+const remove_product = async (req, res) => {
+    try {
+        const body = req.body
+        const session_data = JSON.parse(await get_session_data(req))
+        const user_id = session_data.user_id
+        const book_id = Number(body.book_id)
+
+        if (req.user_role !== "seller") {
+            return res.json(response_data(
+                "no_permit",
+                4,
+                "Bạn không có quyền thực hiện chức năng này!",
+                req?.user_role
+            ))
+        }
+
+        const remove_res = await Product.updateOne({
+            seller_id: user_id,
+            product_id: book_id
+        }, 
+        {
+            is_deleted: true
+        })
+        if (remove_res.matchedCount === 1) {
+            return res.json(response_data("success", 1, "Thành công!", req.user_role))
+        }
+        else {
+            return res.json(response_data("product_not_found", 4, "", req.user_role))
+        }
+    }
+    catch (err) {
+        return res.json(response_data(
+            data=err.message, 
+            status_code=4, 
+            message="Lỗi hệ thống!",
+            role=req?.user_role
+        ))
+    }
+}
+
 module.exports = {
     add_new_product,
     get_product_info,
     find_products,
-    modify_product_info
+    modify_product_info,
+    remove_product
 }

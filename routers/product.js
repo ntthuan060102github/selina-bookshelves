@@ -9,7 +9,8 @@ const {
     add_new_product,
     get_product_info,
     find_products,
-    modify_product_info
+    modify_product_info,
+    remove_product
 } = require("../controllers/product_handler")
 
 const { 
@@ -62,6 +63,13 @@ router.post(
     add_new_product_validator(),
     validate_request_middleware, 
     modify_product_info
+)
+
+router.post(
+    "/remove-product", 
+    auth_user_middleware,
+    get_user_role_middleware,
+    remove_product
 )
 
 router.get(
