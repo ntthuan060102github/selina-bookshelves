@@ -158,8 +158,78 @@ const find_products = async (req, res) => {
     }
 }
 
+const modify_product_info = async (req, res, next) => {
+    try {
+        const session_data = JSON.parse(await get_session_data(req))
+        const seller_id = session_data.user_id
+        const body = req.body
+        const book_id = body?.book_id
+        const product_image = req.file
+        let image_url = ""
+
+        if (req?.user_role !== "seller") {
+            return res.json(response_data(
+                "no_permit",
+                4,
+                "Bạn không có quyền thực hiện chức năng này!",
+                req?.user_role
+            ))
+        }
+
+        if (product_image) {
+            if (!!product_image.mimetype.includes("image")) {
+                return res.json(response_data(
+                    "image_invalid",
+                    status_code=4,
+                    message="Hình ảnh không hợp lệ!",
+                    role=req?.role
+                ))
+            }
+            else {
+                const upload_image_res = await upload_image(product_image)
+                image_url = upload_image_res?.data?.url
+            }
+        }
+
+        const update_res = await Product.updateOne({
+                seller_id: seller_id,
+                product_id: book_id
+            },
+            image_url 
+            ? {
+                name: body?.name,
+                desc: body?.desc,
+                price: Number(body?.price),
+                image: image_url,
+                quantity: Number(body?.quantity)
+            }
+            :{
+                name: body?.name,
+                desc: body?.desc,
+                price: Number(body?.price),
+                quantity: Number(body?.quantity)
+            }
+        )
+        if (update_res.matchedCount === 1) {
+            return res.json(response_data("modify_success", 1, "Sửa thông tin thành công!", req.user_role))
+        }
+        else {
+            return res.json(response_data("product_not_found", 1, "Không tìm thấy thông tin sản phẩm!", req.user_role))
+        }
+    }
+    catch (err) {
+        return res.json(response_data(
+            data=err.message, 
+            status_code=4, 
+            message="Lỗi hệ thống!",
+            role=req?.user_role
+        ))
+    }
+}
+
 module.exports = {
     add_new_product,
     get_product_info,
-    find_products
+    find_products,
+    modify_product_info
 }

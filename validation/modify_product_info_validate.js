@@ -1,6 +1,6 @@
 const { check } = require('express-validator');
 
-const add_new_product_validator = () => {
+const modify_product_info_validate = () => {
     return [
         check("name").isString().isLength({ max: 50, min: 1 }),
         check("desc").isString().isLength({ max: 200, min: 0 }),
@@ -11,5 +11,5 @@ const add_new_product_validator = () => {
 }
 
 module.exports = {
-    add_new_product_validator
+    modify_product_info_validate
 }
