@@ -86,6 +86,7 @@ const get_product_info = async (req, res) => {
                 database_query.status = "approved"
                 break
         }
+        database_query.is_deleted = false
         // if (Object.keys(database_query).length == 0) {
         //     throw Error("invalid role")
         // }
@@ -132,6 +133,7 @@ const find_products = async (req, res) => {
                 database_query.status = "approved"
                 break
         }
+        database_query.is_deleted = false
         // if (Object.keys(database_query).length == 0) {
         //     throw Error("invalid role")
         // }
