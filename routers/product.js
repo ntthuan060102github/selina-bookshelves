@@ -10,7 +10,9 @@ const {
     get_product_info,
     find_products,
     modify_product_info,
-    remove_product
+    remove_product,
+    take_an_order,
+    get_order_infos
 } = require("../controllers/product_handler")
 
 const { 
@@ -28,6 +30,9 @@ const {
 const {
     product_id_validator
 } = require('../validation/product_id_validate')
+const {
+    take_an_order_validate
+} = require('../validation/take_an_order_validate')
 
 const { 
     auth_user_middleware
@@ -63,6 +68,22 @@ router.post(
     add_new_product_validator(),
     validate_request_middleware, 
     modify_product_info
+)
+
+router.post(
+    "/take-an-order", 
+    auth_user_middleware,
+    get_user_role_middleware,
+    take_an_order_validate(),
+    validate_request_middleware, 
+    take_an_order
+)
+
+router.get(
+    "/get-orders", 
+    auth_user_middleware,
+    get_user_role_middleware,
+    get_order_infos
 )
 
 router.post(
