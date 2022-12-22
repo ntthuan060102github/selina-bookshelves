@@ -381,8 +381,8 @@ const take_an_order = async (req, res) => {
 
 const get_order_infos = async (req, res, next) => {
     try {
-        const user_session = await get_session_data(req)
-        const user_role = user_session.user_type
+        const user_session = JSON.parse(await get_session_data(req))
+        const user_role = req.user_role
         const query = {}
         const page = Number(req?.query?.page) || 1
         const limit = Number(req?.query?.limit) || 2
@@ -393,7 +393,7 @@ const get_order_infos = async (req, res, next) => {
                 break;
             case "seller":
                 query.seller_id = user_session.user_id
-                query.status = waiting
+                query.status = "waiting"
                 break;
         }
 
@@ -438,15 +438,8 @@ const get_order_infos = async (req, res, next) => {
                 return response.data
             })
             
-            const new_books_in_cart = books_in_cart.map(book => 
-                {
-                    const new_bok = book.toObject()
-                    new_bok.rest_user = rest_user.data
-                    return new_bok
-                }
-            )
-            console.log(new_books_in_cart)
-            order_temp.books = new_books_in_cart
+            order_temp.rest_user = rest_user.data
+            order_temp.books = books_in_cart
             orders_res.push(order_temp)
         }
 
