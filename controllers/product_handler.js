@@ -492,7 +492,7 @@ const consider_post_new_book = async (req, res) => {
             return res.json(response_data("success", 1, "Thành công!", req.user_role))
         }
     }
-    catch {
+    catch (err) {
         return res.json(response_data(
             data=err.message,
             status_code=4,
