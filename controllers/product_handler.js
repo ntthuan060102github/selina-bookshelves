@@ -5,6 +5,9 @@ const Product = require('../models/product')
 const BookInCart = require('../models/book_in_cart')
 const BookGroup = require('../models/book_group')
 const Order = require('../models/order')
+const { APP_ENV } = require('../configs/app_configs')
+const  SELINA_API_SERVICE_INFOS = require('../configs/selina_service_infos')
+const axios = require("axios")
 
 const add_new_product = async (req, res, next) => {
     try {
@@ -419,7 +422,31 @@ const get_order_infos = async (req, res, next) => {
                 book_group_id: order.book_group_id
             })
             order_temp = order.toObject()
-            order_temp.books = books_in_cart
+
+            const rest_user_query = user_role === "normal_user"
+            ? {
+                user_id: order.seller_id
+            }
+            : {
+                user_id: order.buyer_id
+            }
+            
+            const rest_user = await axios.post(
+                `${SELINA_API_SERVICE_INFOS.profile[APP_ENV].domain}/get-user-info-by-id`,
+                rest_user_query
+            ).then(function (response) {
+                return response.data
+            })
+            
+            const new_books_in_cart = books_in_cart.map(book => 
+                {
+                    const new_bok = book.toObject()
+                    new_bok.rest_user = rest_user.data
+                    return new_bok
+                }
+            )
+            console.log(new_books_in_cart)
+            order_temp.books = new_books_in_cart
             orders_res.push(order_temp)
         }
 
