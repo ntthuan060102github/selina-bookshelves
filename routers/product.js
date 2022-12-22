@@ -11,6 +11,7 @@ const {
     find_products,
     modify_product_info,
     remove_product,
+    consider_post_new_book,
     take_an_order,
     get_order_infos
 } = require("../controllers/product_handler")
@@ -26,6 +27,10 @@ const {
 const {
     page_and_limit_validator
 } = require('../validation/page_and_limit_validate')
+
+const {
+    consider_post_new_book_validator
+} = require('../validation/consider_post_new_book_validate')
 
 const {
     product_id_validator
@@ -91,6 +96,15 @@ router.post(
     auth_user_middleware,
     get_user_role_middleware,
     remove_product
+)
+
+router.post(
+    "consider-post-new-book",
+    auth_user_middleware,
+    get_user_role_middleware,
+    consider_post_new_book_validator(),
+    validate_request_middleware,
+    consider_post_new_book
 )
 
 router.get(

@@ -463,12 +463,52 @@ const get_order_infos = async (req, res, next) => {
     }
 }
 
+const consider_post_new_book = async (req, res) => {
+    try {
+        const user_role = req?.user_role
+        const book_id = req?.query?.book_id
+        const approved = req?.body?.approved
+
+        if (user_role !== "admin") {
+            return res.json(response_data(
+                "no_permit",
+                4,
+                "Bạn không có quyền thực hiện chức năng này!",
+                user_role
+            ))
+        }
+        const book = Product.findOne({ product_id: book_id })
+        if (!Boolean(book) || book.is_deleted) {
+            return res.json(response_data("product_not_found", 4, "Sản phẩm không tồn tại hoặc đã bị xóa", user_role))
+        }
+        else if (book.status !== "pending") {
+            return res.json(response_data("product_not_pending", 4, "Sản phẩm đã được duyệt/từ chối trước đó", user_role))
+        }
+        else {
+            const consider_res = await Product.updateOne(
+                { product_id: book_id }, 
+                { status: approved ? "approved" : "rejected" }
+            )
+            return res.json(response_data("success", 1, "Thành công!", req.user_role))
+        }
+    }
+    catch {
+        return res.json(response_data(
+            data=err.message,
+            status_code=4,
+            message="Lỗi hệ thống!",
+            role=req?.user_role
+        ))
+    }
+}
+
 module.exports = {
     add_new_product,
     get_product_info,
     find_products,
     modify_product_info,
     remove_product,
+    consider_post_new_book,
     take_an_order,
     get_order_infos
 }
