@@ -477,7 +477,7 @@ const consider_post_new_book = async (req, res) => {
                 user_role
             ))
         }
-        const book = Product.findOne({ product_id: book_id })
+        const book = await Product.findOne({ product_id: book_id })
         if (!Boolean(book) || book.is_deleted) {
             return res.json(response_data("product_not_found", 4, "Sản phẩm không tồn tại hoặc đã bị xóa", user_role))
         }

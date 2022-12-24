@@ -2,7 +2,7 @@ const { query, check } = require('express-validator')
 
 const consider_post_new_book_validator = () => {
 	return [
-		query("id").trim().escape().isInt({ min: 1 }),
+		query("book_id").trim().escape().isInt({ min: 1 }),
 		check("approved").isBoolean()
 	]
 }
