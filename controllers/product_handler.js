@@ -549,11 +549,23 @@ const get_pending_books = async (req, res) => {
                 req?.user_role
             ))
         }
+
+        const page = Number(req?.query?.page) || 1
+        const limit = Number(req?.query?.limit) || 10
         
-        const books = await Product.find({
-            status: "pending"
-        })
-    
+        const books_docs = await Product.paginate(
+            {
+                status: "pending"
+            },
+            {
+                page: page,
+                limit: limit
+            }
+        )
+
+        const books = books_docs.docs
+        const rest_dest = { docs, ...rest } = books_docs
+        
         const list_seller_id = books.map(book => book.seller_id)
     
         const sellers_data_response = await axios.post(
@@ -578,7 +590,10 @@ const get_pending_books = async (req, res) => {
             }
         }
     
-        return res.json(response_data(books_res))
+        return res.json(response_data({
+            books: books_res,
+            ...rest
+        }))
     }
     catch (err) {
         return res.json(response_data(
