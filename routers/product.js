@@ -57,6 +57,10 @@ const {
     get_user_role_middleware
 } = require('../middlewares/get_user_role')
 
+const {
+    consider_an_order_validator
+} = require("../validation/consider_an_order")
+
 router.post(
     "/add-new-product", 
     auth_user_middleware,
