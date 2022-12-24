@@ -93,16 +93,28 @@ const get_product_info = async (req, res) => {
                 break
         }
         database_query.is_deleted = false
-        // if (Object.keys(database_query).length == 0) {
-        //     throw Error("invalid role")
-        // }
+        
         let product_info = await Product.findOne(
             database_query,
             'product_id seller_id name desc price image status genres quantity'
         ) || {}
 
+        const seller_info_response = await axios.post(
+            `${SELINA_API_SERVICE_INFOS.profile[APP_ENV].domain}/get-user-info-by-id`,
+            {
+                user_id: seller_id
+            }
+        ).then(function (response) {
+            return response.data
+        })
+
+        const seller_info = seller_info_response.data
+
+        const book = product_info.toObject()
+        book.seller_info = seller_info
+
         return res.json(response_data(
-            product_info,
+            book,
             status_code=1,
             message="Thành công",
             role=user_role
