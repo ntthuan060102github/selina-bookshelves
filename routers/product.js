@@ -13,7 +13,9 @@ const {
     remove_product,
     consider_post_new_book,
     take_an_order,
-    get_order_infos
+    get_order_infos,
+    get_pending_books,
+    consider_an_order
 } = require("../controllers/product_handler")
 
 const { 
@@ -99,7 +101,7 @@ router.post(
 )
 
 router.post(
-    "consider-post-new-book",
+    "/consider-post-new-book",
     auth_user_middleware,
     get_user_role_middleware,
     consider_post_new_book_validator(),
@@ -134,6 +136,22 @@ router.get(
     page_and_limit_validator(),
     validate_request_middleware,
     find_products
+)
+
+router.get(
+    "/get-pending-books", 
+    auth_user_middleware,
+    get_user_role_middleware,
+    get_pending_books
+)
+
+router.post(
+    "/consider-an-order", 
+    auth_user_middleware,
+    get_user_role_middleware,
+    consider_an_order_validator(),
+    validate_request_middleware, 
+    consider_an_order
 )
 
 module.exports = router

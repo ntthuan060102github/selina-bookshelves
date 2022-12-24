@@ -502,6 +502,94 @@ const consider_post_new_book = async (req, res) => {
     }
 }
 
+const consider_an_order = async (req, res) => {
+    try {
+        if (req.user_role !== "seller") {
+            return res.json(response_data(
+                "no_permit",
+                4,
+                "Bạn không có quyền thực hiện chức năng này!",
+                req?.user_role
+            ))
+        }
+
+        const body = req.body
+        const order_id = body.order_id
+        const result = body.result
+
+        const order_status = result ? "delivering" : "rejected"
+
+        const update_res = await Order.updateOne({
+            order_id: order_id
+        }, {
+            $set: {
+                status: order_status
+            }
+        })
+        console.log(update_res)
+        res.json(response_data())
+    }
+    catch (err) {
+        return res.json(response_data(
+            data=err.message, 
+            status_code=4, 
+            message="Lỗi hệ thống!",
+            role=req?.user_role
+        ))
+    } 
+}
+
+const get_pending_books = async (req, res) => {
+    try {
+        if (req.user_role !== "admin") {
+            return res.json(response_data(
+                "no_permit",
+                4,
+                "Bạn không có quyền thực hiện chức năng này!",
+                req?.user_role
+            ))
+        }
+        
+        const books = await Product.find({
+            status: "pending"
+        })
+    
+        const list_seller_id = books.map(book => book.seller_id)
+    
+        const sellers_data_response = await axios.post(
+            `${SELINA_API_SERVICE_INFOS.profile[APP_ENV].domain}/get-list-user-info-by-id`,
+            {
+                list_user_id: list_seller_id
+            }
+        ).then(response => response)
+    
+        const sellers = sellers_data_response.data.data
+    
+        let books_res = []
+    
+        for (let seller of sellers) {
+            for (let book of books) {
+                if (book.seller_id === seller.user_id) {
+                    let _book = book.toObject()
+                    delete seller.password
+                    _book.seller_info = seller
+                    books_res.push(_book)
+                }
+            }
+        }
+    
+        return res.json(response_data(books_res))
+    }
+    catch (err) {
+        return res.json(response_data(
+            data=err.message, 
+            status_code=4, 
+            message="Lỗi hệ thống!",
+            role=req?.user_role
+        ))
+    }
+}
+
 module.exports = {
     add_new_product,
     get_product_info,
@@ -510,5 +598,7 @@ module.exports = {
     remove_product,
     consider_post_new_book,
     take_an_order,
-    get_order_infos
+    get_order_infos,
+    consider_an_order,
+    get_pending_books
 }
