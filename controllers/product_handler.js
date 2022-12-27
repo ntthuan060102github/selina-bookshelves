@@ -290,6 +290,8 @@ const remove_product = async (req, res) => {
 const take_an_order = async (req, res) => {
     try {
         const body = req.body
+        const address = body.address
+        const phone_num = body.phone_num
         const book_group_id = Number(body.book_group_id)
         const user_session = JSON.parse(await get_session_data(req))
 
@@ -303,8 +305,8 @@ const take_an_order = async (req, res) => {
         }
 
         const user_id = user_session.user_id
-        const user_address = user_session.address
-        const user_phone = user_session.phone_num
+        const user_address = address
+        const user_phone = phone_num
 
         if (!user_address) {
             return res.json(response_data(
