@@ -79,13 +79,14 @@ const get_product_info = async (req, res) => {
         const product_id = Number(req?.query?.id)
 
         database_query = { "product_id": product_id }
+
         switch (user_role) {
             case "admin":
                 database_query.status = "pending"
                 break
             case "seller":
                 database_query.status = "approved"
-                database_query.seller_id = seller_id
+                database_query.seller_id = session_data.user_id
                 break
             case "normal_user":
                 database_query.status = "approved"
@@ -94,9 +95,10 @@ const get_product_info = async (req, res) => {
         database_query.is_deleted = false
         
         let product_info = await Product.findOne(
-            database_query,
-            'product_id seller_id name desc price image status genres quantity'
-        ) || {}
+            database_query
+        )
+
+        console.log("--->", product_info)
 
         const seller_info_response = await axios.post(
             `${SELINA_API_SERVICE_INFOS.profile[APP_ENV].domain}/get-user-info-by-id`,
