@@ -15,7 +15,8 @@ const {
     take_an_order,
     get_order_infos,
     get_pending_books,
-    consider_an_order
+    consider_an_order,
+    get_shop_data
 } = require("../controllers/product_handler")
 
 const { 
@@ -88,6 +89,13 @@ router.post(
     take_an_order_validate(),
     validate_request_middleware, 
     take_an_order
+)
+
+router.get(
+    "/get-shop-data/:seller_id", 
+    auth_user_middleware,
+    get_user_role_middleware,
+    get_shop_data
 )
 
 router.get(

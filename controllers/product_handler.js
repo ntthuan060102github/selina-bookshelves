@@ -76,7 +76,6 @@ const get_product_info = async (req, res) => {
     try {
         const user_role = req?.user_role
         const session_data = JSON.parse(await get_session_data(req))
-        const seller_id = session_data?.user_id
         const product_id = Number(req?.query?.id)
 
         database_query = { "product_id": product_id }
@@ -102,7 +101,7 @@ const get_product_info = async (req, res) => {
         const seller_info_response = await axios.post(
             `${SELINA_API_SERVICE_INFOS.profile[APP_ENV].domain}/get-user-info-by-id`,
             {
-                user_id: seller_id
+                user_id: product_info?.seller_id
             }
         ).then(function (response) {
             return response.data
@@ -619,6 +618,44 @@ const get_pending_books = async (req, res) => {
     }
 }
 
+const get_shop_data = async (req, res) => {
+    try {
+        const seller_id = req?.params?.seller_id
+        const page = Number(req?.query?.page) || 1
+        const limit = Number(req?.query?.limit) || 20
+
+        if (!seller_id) {
+            return res.json(response_data(
+                data="shop_not_found", 
+                status_code=4, 
+                message="Lỗi hệ thống!",
+                role=req?.user_role
+            ))
+        }
+
+        const products = await Product.paginate(
+            {
+                seller_id: seller_id,
+                status: "approved"
+            },
+            {
+                limit: limit,
+                page: page
+            }
+        )
+
+        return res.json(response_data(products))
+    }
+    catch (err) {
+        return res.json(response_data(
+            data=err.message, 
+            status_code=4, 
+            message="Lỗi hệ thống!",
+            role=req?.user_role
+        ))
+    }
+}
+
 module.exports = {
     add_new_product,
     get_product_info,
@@ -629,5 +666,6 @@ module.exports = {
     take_an_order,
     get_order_infos,
     consider_an_order,
-    get_pending_books
+    get_pending_books,
+    get_shop_data
 }
