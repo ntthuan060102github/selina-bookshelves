@@ -197,7 +197,8 @@ const get_cart_info = async (req, res, next) => {
                         desc: book_in_cart.desc,
                         quantity: book_in_cart.quantity,
                         price: book_in_cart.price,
-                        total_price: book_in_cart.quantity*book_in_cart.price
+                        total_price: book_in_cart.quantity*book_in_cart.price,
+                        book_in_cart_id: book_in_cart.book_in_cart_id
                     })
                     let total_price = 0
                     for (const book of res.books) {
@@ -220,7 +221,37 @@ const get_cart_info = async (req, res, next) => {
     }
 }
 
+const modify_quantity_book_in_cart = async (req, res) => {
+    try {
+        const body = req.body
+        const quantity = Number(body?.quantity)
+        const book_in_cart_id = body.book_in_cart_id
+
+        const update = await BookInCart.updateOne(
+            {
+                book_in_cart_id: book_in_cart_id,
+            },
+            {
+                $set: {
+                    quantity: quantity
+                }
+            }
+        )
+        console.log(update)
+        return res.json(response_data(update))
+    }
+    catch (err) {
+        return res.json(response_data(
+            data=err.message, 
+            status_code=4, 
+            message="Lỗi hệ thống!",
+            role=req?.user_role
+        ))
+    }
+}
+
 module.exports = {
     add_product_to_cart,
-    get_cart_info
+    get_cart_info,
+    modify_quantity_book_in_cart
 }

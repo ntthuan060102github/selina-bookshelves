@@ -14,7 +14,8 @@ const {
 
 const {
     add_product_to_cart,
-    get_cart_info
+    get_cart_info,
+    modify_quantity_book_in_cart
 } = require("../controllers/cart_handler")
 
 const {
@@ -28,6 +29,13 @@ router.post(
     add_product_to_cart_validator(),
     validate_request_middleware,
     add_product_to_cart
+)
+
+router.post(
+    "/modify-quantity-book-in-cart",
+    auth_user_middleware,
+    get_user_role_middleware,
+    modify_quantity_book_in_cart
 )
 
 router.get(
