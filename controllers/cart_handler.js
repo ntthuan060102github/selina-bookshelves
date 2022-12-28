@@ -27,6 +27,15 @@ const add_product_to_cart = async (req, res, next) => {
             product_id: book_id,
             status: "approved"
         })
+
+        if (product_info.quantity < quantity) {
+            return res.json(response_data(
+                data="no_enough_quantity", 
+                status_code=4, 
+                message="Số lượng sách còn lại không đủ!",
+                role=req?.user_role
+            ))
+        }
         
         if(!product_info) {
             return res.json(response_data(
