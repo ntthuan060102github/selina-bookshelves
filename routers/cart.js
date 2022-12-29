@@ -15,7 +15,8 @@ const {
 const {
     add_product_to_cart,
     get_cart_info,
-    modify_quantity_book_in_cart
+    modify_quantity_book_in_cart,
+    get_checkout
 } = require("../controllers/cart_handler")
 
 const {
@@ -43,6 +44,13 @@ router.get(
     auth_user_middleware,
     get_user_role_middleware,
     get_cart_info
+)
+
+router.get(
+    "/get-checkout/:checkout_id",
+    auth_user_middleware,
+    get_user_role_middleware,
+    get_checkout
 )
 
 module.exports = router
