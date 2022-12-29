@@ -157,7 +157,6 @@ const find_products = async (req, res) => {
         //     throw Error("invalid role")
         // }
         const query_options = {
-            select: 'product_id seller_id name desc price image status genres quantity',
             page: page,
             limit: limit
         }
