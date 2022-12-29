@@ -6,10 +6,13 @@ const password = "odaadqhnjygtkuvy"
 const email_service_config = {
     host: "smtp.gmail.com",
     port: 587,
-    // secure: true,
+    secure: false,
     auth: {
         user: account,
         pass: password,
+    },
+    tls: {
+        rejectUnauthorized: false
     }
 }
 
