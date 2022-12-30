@@ -49,6 +49,7 @@ const add_product_to_cart = async (req, res, next) => {
         const seller_id = product_info.seller_id
         const book_group_info = await BookGroup.findOne({
             seller_id: seller_id,
+            buyer_id: session_data.user_id,
             is_deleted: false
         })
         let book_group = null
