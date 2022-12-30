@@ -540,8 +540,38 @@ const consider_an_order = async (req, res) => {
                 status: order_status
             }
         })
-        console.log(update_res)
-        res.json(response_data())
+        if (update_res.modifiedCount === 0) {
+            return res.json(response_data("fail", 4, "Duyệt đơn hàng không thành công!", req.user_role))
+        }
+
+        const order = await Order.findOne({
+            order_id: order_id
+        })
+
+        if (!order) {
+            return res.json(response_data("fail", 4, "Duyệt đơn hàng không thành công!", req.user_role)) 
+        }
+
+        const books_in_cart = await BookInCart.find({
+            book_group_id: order.book_group_id
+        })
+
+        const list_book_id = books_in_cart.map(b => b.book_id)
+        const books = await Product.find({
+            product_id: {
+                $in: list_book_id
+            }
+        })   
+        
+        for (const book of books) {
+            for (const book_in_cart of books_in_cart) {
+                if (book.product_id === book_in_cart.book_id) {
+                    book.quantity -= book_in_cart.quantity
+                    await book.save()
+                }
+            }
+        }
+        return res.json(response_data())
     }
     catch (err) {
         return res.json(response_data(
