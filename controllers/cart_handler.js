@@ -57,7 +57,7 @@ const add_product_to_cart = async (req, res, next) => {
             book_group = book_group_info.group_id
         }
         else {
-            const new_book_group = BookGroup({
+            const new_book_group = new BookGroup({
                 buyer_id: session_data.user_id,
                 seller_id: seller_id
             })
