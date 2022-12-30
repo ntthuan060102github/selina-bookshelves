@@ -277,7 +277,7 @@ const get_checkout = async (req, res, next) => {
         const book_group = await BookGroup.find({
             buyer_id: user_id,
             is_deleted: false,
-            book_group_id: checkout_id
+            group_id: checkout_id
         })
 
         const book_group_infos = book_group.map(book_group_info => ({
