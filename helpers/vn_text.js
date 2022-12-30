@@ -8,7 +8,7 @@ const get_unaccented_text_vn = (string='') => {
 
 const get_accent_insensitive_regex_vn = (string='') => {
     return string
-        .replace(/a/g, '[a,ă,â,á,ă,ấ,à,ằ,ầ,ả,ẳ,ẩ,ã,ẵ,ẫ,ạ,ặ,ậ]')
+        .replace(/a/g, '[a,ă,â,á,ắ,ấ,à,ằ,ầ,ả,ẳ,ẩ,ã,ẵ,ẫ,ạ,ặ,ậ]')
         .replace(/e/g, '[e,ê,é,ế,è,ề,ẻ,ể,ẽ,ễ,ẹ,ệ]')
         .replace(/i/g, '[i,í,ì,ỉ,ĩ,ị]')
         .replace(/o/g, '[o,ô,ơ,ó,ố,ớ,ò,ồ,ờ,ỏ,ổ,ở,õ,ỗ,ỡ,ọ,ộ,ợ]')
