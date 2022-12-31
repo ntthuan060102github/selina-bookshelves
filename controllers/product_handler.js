@@ -710,6 +710,144 @@ const get_shop_data = async (req, res) => {
     }
 }
 
+const remove_book_group = async (req, res) => {
+    try {
+        if (req.user_role !== "normal_user") {
+            return res.json(response_data(
+                "no_permit",
+                4,
+                "Bạn không có quyền thực hiện chức năng này!",
+                req?.user_role
+            ))
+        }
+        const user_session = JSON.parse(await get_session_data(req))
+        const book_group_id = Number(req.body?.book_group_id)
+
+        const book_group = await BookGroup.findOne({
+            group_id: book_group_id,
+            is_deleted: false
+        })
+        if (!book_group) {
+            return res.json(response_data(
+                "book_group_not_found",
+                4,
+                "Book group không tồn tại",
+                req?.user_role
+            ))
+        }
+        if (book_group.buyer_id !== user_session.user_id) {
+            return res.json(response_data(
+                "no_permit",
+                4,
+                "Bạn không có quyền thực hiện chức năng này!",
+                req?.user_role
+            ))
+        }
+
+        const remove_group = await BookGroup.updateOne({
+            group_id: book_group_id
+        }, {
+            $set: {
+                is_deleted: true
+            }
+        })
+        if (remove_group.modifiedCount === 0) {
+            return res.json(response_data("fail", 4, "Xóa book group không thành công", req?.user_role))
+        }
+
+        const remove_group_books_res = await BookInCart.updateMany({
+            book_group_id: book_group_id,
+            is_deleted: false
+        }, {
+            $set: {
+                is_deleted: true
+            }
+        })
+        if (remove_group_books_res.matchedCount !== remove_group_books_res.modifiedCount) {
+            return res.json(response_data("fail", 4, "Xóa book group không thành công", req?.user_role))
+        }
+        return res.json(response_data("success", 1, "Thành công", req?.user_role))
+    }
+    catch (err) {
+        return res.json(response_data(
+            data=err.message,
+            status_code=4,
+            message="Lỗi hệ thống!",
+            role=req?.user_role
+        ))
+    }
+}
+
+const remove_book_in_cart = async (req, res) => {
+    try {
+        if (req.user_role !== "normal_user") {
+            return res.json(response_data(
+                "no_permit",
+                4,
+                "Bạn không có quyền thực hiện chức năng này!",
+                req?.user_role
+            ))
+        }
+
+        const user_session = JSON.parse(await get_session_data(req))
+        const book_in_cart_id = Number(req.body?.book_in_cart_id)
+        const book_in_cart = await BookInCart.findOne({
+            book_in_cart_id: book_in_cart_id,
+            is_deleted: false
+        })
+        if (!book_in_cart) {
+            return res.json(response_data(
+                "book_in_cart_not_found",
+                4,
+                "Book in cart không tồn tại",
+                req?.user_role
+            ))
+        }
+
+        const book_group_id = book_in_cart.book_group_id
+        const book_group = await BookGroup.findOne({
+            group_id: book_group_id,
+            is_deleted: false
+        })
+        if (!book_group) {
+            return res.json(response_data(
+                "book_group_not_found",
+                4,
+                "Book group có book in cart này không tồn tại",
+                req?.user_role
+            ))
+        }
+        if (book_group.buyer_id !== user_session.user_id) {
+            return res.json(response_data(
+                "no_permit",
+                4,
+                "Bạn không có quyền thực hiện chức năng này!",
+                req?.user_role
+            ))
+        }
+
+        const update_res = await BookInCart.updateOne({
+            book_in_cart_id: book_in_cart_id
+        }, {
+            $set: {
+                is_deleted: true
+            }
+        })
+        if (update_res.modifiedCount === 0) {
+            return res.json(response_data("fail", 4, "Xóa book in cart không thành công", req?.user_role))
+        }
+        return res.json(response_data("success", 1, "Thành công", req?.user_role))
+    }
+    catch (err) {
+        return res.json(response_data(
+            data=err.message,
+            status_code=4,
+            message="Lỗi hệ thống!",
+            role=req?.user_role
+        ))
+    }
+}
+
 module.exports = {
     add_new_product,
     get_product_info,
@@ -721,5 +859,7 @@ module.exports = {
     get_order_infos,
     consider_an_order,
     get_pending_books,
-    get_shop_data
+    get_shop_data,
+    remove_book_group,
+    remove_book_in_cart
 }
