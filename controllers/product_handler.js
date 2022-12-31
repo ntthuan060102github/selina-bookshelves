@@ -343,6 +343,29 @@ const take_an_order = async (req, res) => {
             return res.json(response_data("books_in_cart_empty", 4, "Đặt hàng không thành công!", req.user_role))
         }
 
+        const list_book_id = books_in_cart.map(b => b.book_id)
+
+        const origin_books = await Product.find({
+            product_id: {
+                $in: list_book_id
+            }
+        })
+
+        for (const origin_book of origin_books) {
+            for (const book_in_cart of books_in_cart) {
+                if (origin_book.product_id === book_in_cart.book_id) {
+                    if (book_in_cart.quantity > origin_book.quantity) {
+                        return res.json(response_data(
+                            "not_enough_quantity",
+                            4,
+                            `Sản phẩm "${origin_book.name}" không còn đủ số lượng cho đơn hàng của bạn!`,
+                            req.user_role
+                        ))
+                    }
+                }
+            }
+        }
+
         let total_price = 0
         books_in_cart.forEach(book => total_price += Number(book.price))
 
