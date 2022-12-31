@@ -17,8 +17,7 @@ const {
     get_pending_books,
     consider_an_order,
     get_shop_data,
-    remove_book_group,
-    remove_book_in_cart
+    remove_book_group
 } = require("../controllers/product_handler")
 
 const { 
@@ -173,13 +172,6 @@ router.post(
     auth_user_middleware,
     get_user_role_middleware,
     remove_book_group
-)
-
-router.post(
-    "/remove-book-in-cart",
-    auth_user_middleware,
-    get_user_role_middleware,
-    remove_book_in_cart
 )
 
 module.exports = router

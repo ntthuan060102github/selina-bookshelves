@@ -354,9 +354,80 @@ const get_checkout = async (req, res, next) => {
     
 }
 
+const remove_book_in_cart = async (req, res) => {
+    try {
+        if (req.user_role !== "normal_user") {
+            return res.json(response_data(
+                "no_permit",
+                4,
+                "Bạn không có quyền thực hiện chức năng này!",
+                req?.user_role
+            ))
+        }
+
+        const user_session = JSON.parse(await get_session_data(req))
+        const book_in_cart_id = Number(req.body?.book_in_cart_id)
+        const book_in_cart = await BookInCart.findOne({
+            book_in_cart_id: book_in_cart_id,
+            is_deleted: false
+        })
+        if (!book_in_cart) {
+            return res.json(response_data(
+                "book_in_cart_not_found",
+                4,
+                "Book in cart không tồn tại",
+                req?.user_role
+            ))
+        }
+
+        const book_group_id = book_in_cart.book_group_id
+        const book_group = await BookGroup.findOne({
+            group_id: book_group_id,
+            is_deleted: false
+        })
+        if (!book_group) {
+            return res.json(response_data(
+                "book_group_not_found",
+                4,
+                "Book group có book in cart này không tồn tại",
+                req?.user_role
+            ))
+        }
+        if (book_group.buyer_id !== user_session.user_id) {
+            return res.json(response_data(
+                "no_permit",
+                4,
+                "Bạn không có quyền thực hiện chức năng này!",
+                req?.user_role
+            ))
+        }
+
+        const update_res = await BookInCart.updateOne({
+            book_in_cart_id: book_in_cart_id
+        }, {
+            $set: {
+                is_deleted: true
+            }
+        })
+        if (update_res.modifiedCount === 0) {
+            return res.json(response_data("fail", 4, "Xóa book in cart không thành công", req?.user_role))
+        }
+        return res.json(response_data("success", 1, "Thành công", req?.user_role))
+    }
+    catch (err) {
+        return res.json(response_data(
+            data=err.message,
+            status_code=4,
+            message="Lỗi hệ thống!",
+            role=req?.user_role
+        ))
+    }
+}
+
 module.exports = {
     add_product_to_cart,
     get_cart_info,
     modify_quantity_book_in_cart,
-    get_checkout
+    get_checkout,
+    remove_book_in_cart
 }
