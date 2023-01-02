@@ -221,13 +221,15 @@ const modify_product_info = async (req, res, next) => {
                 desc: body?.desc,
                 price: Number(body?.price),
                 image: image_url,
-                quantity: Number(body?.quantity)
+                quantity: Number(body?.quantity),
+                author: body.author
             }
             :{
                 name: body?.name,
                 desc: body?.desc,
                 price: Number(body?.price),
-                quantity: Number(body?.quantity)
+                quantity: Number(body?.quantity),
+                author: body.author
             }
         )
         if (update_res.matchedCount === 1) {
