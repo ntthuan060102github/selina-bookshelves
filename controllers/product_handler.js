@@ -770,6 +770,48 @@ const remove_book_group = async (req, res) => {
     }
 }
 
+const modify_order_status = async (req, res, next) => {
+    try {
+        if (req.user_role !== "normal_user") {
+            return res.json(response_data(
+                "no_permit",
+                4,
+                "Bạn không có quyền thực hiện hiện chức năng này!",
+                req.user_role
+            ))
+        }
+        const body = req.body
+        const user_session = JSON.parse(await get_session_data(req))
+        const order_id = body.order_id
+        const order_status = body.order_status
+        const user_id = user_session.user_id
+
+        const modify_res = await Order.updateOne({
+            order_id: order_id,
+            buyer_id: user_id
+        },
+        {
+            $set: {
+                status: order_status
+            }
+        })
+        if (modify_res.modifiedCount !== 0) {
+            return res.json(response_data())
+        }
+        else {
+            return res.json(response_data("no_modify", 4, "no_modify", req.user_role))
+        }
+    }
+    catch (err) {
+        return res.json(response_data(
+            data=err.message,
+            status_code=4,
+            message="Lỗi hệ thống!",
+            role=req?.user_role
+        ))
+    }
+}
+
 module.exports = {
     add_new_product,
     get_product_info,
@@ -782,5 +824,6 @@ module.exports = {
     consider_an_order,
     get_pending_books,
     get_shop_data,
-    remove_book_group
+    remove_book_group,
+    modify_order_status
 }

@@ -17,7 +17,8 @@ const {
     get_pending_books,
     consider_an_order,
     get_shop_data,
-    remove_book_group
+    remove_book_group,
+    modify_order_status
 } = require("../controllers/product_handler")
 
 const { 
@@ -62,6 +63,10 @@ const {
 const {
     consider_an_order_validator
 } = require("../validation/consider_an_order")
+
+const {
+    modify_order_status_validator
+} = require("../validation/modify_order_status_validate")
 
 router.post(
     "/add-new-product", 
@@ -165,6 +170,15 @@ router.post(
     consider_an_order_validator(),
     validate_request_middleware, 
     consider_an_order
+)
+
+router.post(
+    "/modify-order-status", 
+    auth_user_middleware,
+    get_user_role_middleware,
+    modify_order_status_validator(),
+    validate_request_middleware, 
+    modify_order_status
 )
 
 router.post(
