@@ -443,15 +443,11 @@ const get_order_infos = async (req, res, next) => {
             ))
         }
 
-        const orders_docs = await Order.paginate(
-            query,
-            {
-                page: page,
-                limit: limit
-            }
+        const orders_docs = await Order.find(
+            query
 
         )
-        const orders = orders_docs.docs
+        const orders = orders_docs
         const orders_res = []
         
         for (let order of orders) {
@@ -481,11 +477,7 @@ const get_order_infos = async (req, res, next) => {
         }
 
         const res_data = {
-            data: orders_res,
-            total: orders.total,
-            limit: orders.limit,
-            page: orders.page,
-            pages: orders.pages
+            data: orders_res
         }
 
         return res.json(response_data(res_data, 1, "", req.user_role))
