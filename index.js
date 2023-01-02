@@ -5,7 +5,9 @@ const helmet = require('helmet')
 const morgan = require('morgan')
 const multer = require('multer')
 const path = require('path')
-const cors = require('cors');
+const cors = require('cors')
+
+dotenv.config()
 
 const { 
     ROUTES_PREFIX,
@@ -18,10 +20,8 @@ const cart_router = require('./routers/cart')
 
 const app = express()
 
-dotenv.config()
-
 mongoose.connect(
-    MONGO_DB_URL || "mongodb+srv://Zeta:thuan2002@cluster0.pmjo1.mongodb.net/Selina-Staging?retryWrites=true&w=majority",
+    MONGO_DB_URL,
     { 
         useNewUrlParser: true 
     },
@@ -49,5 +49,5 @@ app.use(ROUTES_PREFIX + "", product_router)
 app.use(ROUTES_PREFIX + "", cart_router)
 
 app.listen(process.env.PORT || 8802 , () => {
-    console.log("Bookshelves service is running...")
+    console.log(`Bookshelves service (env: ${process.env.APP_ENV}) is running...`)
 })
