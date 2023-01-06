@@ -15,7 +15,7 @@ const SELINA_API_SERVICE_INFOS = {
             domain: "https://selina-profile-staging.herokuapp.com/selina-profile-api"
         },
         production: {
-            domain: "https://selina-profile.onrender.com/selina-profile-api"
+            domain: "https://selina-profile-l839.onrender.com/selina-profile-api"
         },
         local: {
             domain: "http://127.0.0.1:8801/selina-profile-api"
