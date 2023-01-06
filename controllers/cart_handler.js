@@ -340,7 +340,10 @@ const get_checkout = async (req, res, next) => {
                 }
             }
         }
-
+        res_data[0].user_info = {
+            phone_num: session_data.phone_num,
+            address: session_data.address
+        }
         return res.json(response_data(res_data))
     }
     catch (err) {
